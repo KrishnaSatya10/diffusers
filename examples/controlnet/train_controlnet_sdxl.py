@@ -798,6 +798,13 @@ def prepare_train_dataset(dataset, accelerator):
         examples["pixel_values"] = images
         examples["conditioning_pixel_values"] = conditioning_images
 
+
+        if len(examples["pixel_values"]) > 0:
+            t = examples["pixel_values"][0]
+            c = examples["conditioning_pixel_values"][0]
+            assert t.min() >= -1.0 and t.max() <= 1.0,   f"target image out of range: [{t.min():.2f}, {t.max():.2f}]"
+            assert c.min() >= 0.0  and c.max() <= 1.0,   f"conditioning image out of range: [{c.min():.2f}, {c.max():.2f}]"
+
         return examples
 
     with accelerator.main_process_first():
