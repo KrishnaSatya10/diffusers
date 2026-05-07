@@ -995,15 +995,6 @@ def main(args):
             for dtype, params in dtypes.items():
                 print(f"  {dtype}: {len(params)} params (e.g. {params[0]})")
 
-    audit_model_dtypes({
-        "controlnet": controlnet,
-        "unet": unet,
-        "vae": vae,
-        "text_encoder_1": text_encoder_one,   # SDXL has two text encoders
-        "text_encoder_2": text_encoder_two,
-    })
-
-
 
     if args.enable_npu_flash_attention:
         if is_torch_npu_available():
@@ -1091,6 +1082,15 @@ def main(args):
     unet.to(accelerator.device, dtype=weight_dtype)
     text_encoder_one.to(accelerator.device, dtype=weight_dtype)
     text_encoder_two.to(accelerator.device, dtype=weight_dtype)
+
+
+    audit_model_dtypes({
+        "controlnet": controlnet,
+        "unet": unet,
+        "vae": vae,
+        "text_encoder_1": text_encoder_one,   # SDXL has two text encoders
+        "text_encoder_2": text_encoder_two,
+    })
 
     # Here, we compute not just the text embeddings but also the additional embeddings
     # needed for the SD XL UNet to operate.
