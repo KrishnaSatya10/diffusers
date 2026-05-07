@@ -983,6 +983,28 @@ def main(args):
     text_encoder_two.requires_grad_(False)
     controlnet.train()
 
+
+    def audit_model_dtypes(models: dict):
+        for model_name, model in models.items():
+            dtypes = {}
+            for name, param in model.named_parameters():
+                dtype = str(param.dtype)
+                dtypes.setdefault(dtype, []).append(name)
+            print(f"\n{'='*50}")
+            print(f"Model: {model_name}")
+            for dtype, params in dtypes.items():
+                print(f"  {dtype}: {len(params)} params (e.g. {params[0]})")
+
+    audit_model_dtypes({
+        "controlnet": controlnet,
+        "unet": unet,
+        "vae": vae,
+        "text_encoder_1": text_encoder_one,   # SDXL has two text encoders
+        "text_encoder_2": text_encoder_two,
+    })
+
+
+
     if args.enable_npu_flash_attention:
         if is_torch_npu_available():
             logger.info("npu flash attention enabled.")
@@ -1178,7 +1200,7 @@ def main(args):
         tracker_config.pop("validation_image")
 
         accelerator.init_trackers(args.tracker_project_name, config=tracker_config)
-
+    
     # Train!
     total_batch_size = args.train_batch_size * accelerator.num_processes * args.gradient_accumulation_steps
 
