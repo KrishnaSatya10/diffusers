@@ -936,7 +936,7 @@ def main(args):
 
     if args.controlnet_model_name_or_path:
         logger.info("Loading existing controlnet weights")
-        controlnet = ControlNetModel.from_pretrained(args.controlnet_model_name_or_path, torch_dtype=torch.bfloat16)
+        controlnet = ControlNetModel.from_pretrained(args.controlnet_model_name_or_path)
 
     else:
         logger.info("Initializing controlnet weights from unet")
