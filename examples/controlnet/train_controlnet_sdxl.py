@@ -1282,6 +1282,12 @@ def main(args):
                     dtype=weight_dtype
                 )
 
+                unet_added_cond_kwargs = {
+                    k: v.to(dtype=weight_dtype) if isinstance(v, torch.Tensor) else v
+                    for k, v in batch["unet_added_conditions"].items()
+                    }
+                
+
                 # ControlNet conditioning.
                 controlnet_image = batch["conditioning_pixel_values"].to(dtype=weight_dtype)
                 down_block_res_samples, mid_block_res_sample = controlnet(
@@ -1297,8 +1303,8 @@ def main(args):
                 model_pred = unet(
                     noisy_latents,
                     timesteps,
-                    encoder_hidden_states=batch["prompt_ids"],
-                    added_cond_kwargs=batch["unet_added_conditions"],
+                    encoder_hidden_states=batch["prompt_ids"].to(dtype=weight_dtype),
+                    added_cond_kwargs=unet_added_cond_kwargs, #batch["unet_added_conditions"],
                     down_block_additional_residuals=[
                         sample.to(dtype=weight_dtype) for sample in down_block_res_samples
                     ],
